@@ -4,7 +4,7 @@ using namespace std;
 
 // Linear Search
 int linearSearch(int arr[], int n, int key) {
-    for(int i=0; i<n; i++) {
+    for(int i = 0; i < n; i++) {
         if(arr[i] == key)
             return i;
     }
@@ -13,7 +13,7 @@ int linearSearch(int arr[], int n, int key) {
 
 // Binary Search (array must be sorted)
 int binarySearch(int arr[], int n, int key) {
-    int low = 0, high = n-1;
+    int low = 0, high = n - 1;
     while(low <= high) {
         int mid = low + (high - low)/2;
         if(arr[mid] == key)
@@ -27,11 +27,27 @@ int binarySearch(int arr[], int n, int key) {
 }
 
 int main() {
-    int arr[] = {1,3,5,7,9,11,13};
+    int arr[] = {1, 3, 5, 7, 9, 11, 13};
     int n = sizeof(arr)/sizeof(arr[0]);
     int key = 7;
     
-    cout << "Linear Search: Ind
+    // Linear Search
+    int linearIndex = linearSearch(arr, n, key);
+    if(linearIndex != -1)
+        cout << "Linear Search: Key " << key << " found at index " << linearIndex << endl;
+    else
+        cout << "Linear Search: Key " << key << " not found" << endl;
+    
+    // Binary Search
+    int binaryIndex = binarySearch(arr, n, key);
+    if(binaryIndex != -1)
+        cout << "Binary Search: Key " << key << " found at index " << binaryIndex << endl;
+    else
+        cout << "Binary Search: Key " << key << " not found" << endl;
+    
+    return 0;
+}
+
 //question 2
 #include <iostream>
 using namespace std;
