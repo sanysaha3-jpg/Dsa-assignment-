@@ -1,0 +1,289 @@
+//Question 1
+#include <iostream>
+using namespace std;
+
+struct Node{
+    int data;
+    Node* left;
+    Node* right;
+    Node(int v){data=v;left=right=0;}
+};
+
+Node* insertNode(Node* r,int v){
+    if(!r) return new Node(v);
+    if(v<r->data) r->left=insertNode(r->left,v);
+    else r->right=insertNode(r->right,v);
+    return r;
+}
+
+void preorder(Node* r){
+    if(!r) return;
+    cout<<r->data<<" ";
+    preorder(r->left);
+    preorder(r->right);
+}
+
+void inorder(Node* r){
+    if(!r) return;
+    inorder(r->left);
+    cout<<r->data<<" ";
+    inorder(r->right);
+}
+
+void postorder(Node* r){
+    if(!r) return;
+    postorder(r->left);
+    postorder(r->right);
+    cout<<r->data<<" ";
+}
+
+int main(){
+    int n,x; cin>>n;
+    Node* r=0;
+    while(n--){cin>>x; r=insertNode(r,x);}
+    preorder(r); cout<<endl;
+    inorder(r); cout<<endl;
+    postorder(r); cout<<endl;
+}
+//Question 2
+#include <iostream>
+using namespace std;
+
+struct Node{
+    int data;
+    Node* left;
+    Node* right;
+    Node(int v){data=v;left=right=0;}
+};
+
+Node* insertNode(Node* r,int v){
+    if(!r) return new Node(v);
+    if(v<r->data) r->left=insertNode(r->left,v);
+    else r->right=insertNode(r->right,v);
+    return r;
+}
+
+Node* searchRec(Node* r,int k){
+    if(!r||r->data==k) return r;
+    if(k<r->data) return searchRec(r->left,k);
+    return searchRec(r->right,k);
+}
+
+Node* searchNonRec(Node* r,int k){
+    while(r){
+        if(r->data==k) return r;
+        if(k<r->data) r=r->left;
+        else r=r->right;
+    }
+    return 0;
+}
+
+Node* minNode(Node* r){
+    while(r->left) r=r->left;
+    return r;
+}
+
+Node* maxNode(Node* r){
+    while(r->right) r=r->right;
+    return r;
+}
+
+Node* inorderSuccessor(Node* r,Node* n){
+    if(n->right) return minNode(n->right);
+    Node* succ=0;
+    while(r){
+        if(n->data<r->data){succ=r; r=r->left;}
+        else if(n->data>r->data) r=r->right;
+        else break;
+    }
+    return succ;
+}
+
+Node* inorderPredecessor(Node* r,Node* n){
+    if(n->left) return maxNode(n->left);
+    Node* pre=0;
+    while(r){
+        if(n->data>r->data){pre=r; r=r->right;}
+        else if(n->data<r->data) r=r->left;
+        else break;
+    }
+    return pre;
+}
+
+int main(){
+    int n,x,find; cin>>n;
+    Node* r=0;
+    while(n--){cin>>x; r=insertNode(r,x);}
+    cin>>find;
+    Node* t=searchRec(r,find);
+    if(t) cout<<t->data<<endl;
+    else cout<<"NF"<<endl;
+}
+//Question 3
+#include <iostream>
+using namespace std;
+
+struct Node{
+    int data;
+    Node* left;
+    Node* right;
+    Node(int v){data=v;left=right=0;}
+};
+
+Node* insertNode(Node* r,int v){
+    if(!r) return new Node(v);
+    if(v<r->data) r->left=insertNode(r->left,v);
+    else if(v>r->data) r->right=insertNode(r->right,v);
+    return r;
+}
+
+Node* minNode(Node* r){
+    while(r->left) r=r->left;
+    return r;
+}
+
+Node* deleteNode(Node* r,int k){
+    if(!r) return r;
+    if(k<r->data) r->left=deleteNode(r->left,k);
+    else if(k>r->data) r->right=deleteNode(r->right,k);
+    else{
+        if(!r->left){
+            Node* t=r->right;
+            delete r;
+            return t;
+        }
+        else if(!r->right){
+            Node* t=r->left;
+            delete r;
+            return t;
+        }
+        Node* t=minNode(r->right);
+        r->data=t->data;
+        r->right=deleteNode(r->right,t->data);
+    }
+    return r;
+}
+
+int maxDepth(Node* r){
+    if(!r) return 0;
+    int l=maxDepth(r->left);
+    int ri=maxDepth(r->right);
+    return (l>ri?l:ri)+1;
+}
+
+int minDepth(Node* r){
+    if(!r) return 0;
+    int l=minDepth(r->left);
+    int ri=minDepth(r->right);
+    if(!r->left||!r->right) return l+ri+1;
+    return (l<ri?l:ri)+1;
+}
+
+int main(){
+    int n,x; cin>>n;
+    Node* r=0;
+    while(n--){cin>>x; r=insertNode(r,x);}
+    cin>>x;
+    r=deleteNode(r,x);
+    cout<<maxDepth(r)<<endl<<minDepth(r)<<endl;
+}
+//Question 4
+#include <iostream>
+using namespace std;
+
+struct Node{
+    int data;
+    Node* left;
+    Node* right;
+    Node(int v){data=v;left=right=0;}
+};
+
+bool isBSTUtil(Node* r,int min,int max){
+    if(!r) return true;
+    if(r->data<=min||r->data>=max) return false;
+    return isBSTUtil(r->left,min,r->data)
+        && isBSTUtil(r->right,r->data,max);
+}
+
+bool isBST(Node* r){
+    return isBSTUtil(r,-1000000000,1000000000);
+}
+
+int main(){
+    Node* r=new Node(4);
+    r->left=new Node(2);
+    r->right=new Node(5);
+    r->left->left=new Node(1);
+    r->left->right=new Node(3);
+    cout<<isBST(r);
+}
+//Question 5
+#include <iostream>
+using namespace std;
+
+void heapify(int a[],int n,int i){
+    int l=2*i+1,r=2*i+2,m=i;
+    if(l<n&&a[l]>a[m]) m=l;
+    if(r<n&&a[r]>a[m]) m=r;
+    if(m!=i){
+        int t=a[i]; a[i]=a[m]; a[m]=t;
+        heapify(a,n,m);
+    }
+}
+
+void heapSort(int a[],int n){
+    for(int i=n/2-1;i>=0;i--) heapify(a,n,i);
+    for(int i=n-1;i>=0;i--){
+        int t=a[0]; a[0]=a[i]; a[i]=t;
+        heapify(a,i,0);
+    }
+}
+
+int main(){
+    int n,a[1000]; cin>>n;
+    for(int i=0;i<n;i++) cin>>a[i];
+    heapSort(a,n);
+    for(int i=0;i<n;i++) cout<<a[i]<<" ";
+}
+//Question 6
+#include <iostream>
+using namespace std;
+
+int h[1000],sz=0;
+
+void pushPQ(int v){
+    int i=sz++;
+    h[i]=v;
+    while(i>0){
+        int p=(i-1)/2;
+        if(h[p]<h[i]){
+            int t=h[p]; h[p]=h[i]; h[i]=t;
+            i=p;
+        } else break;
+    }
+}
+
+int popPQ(){
+    int r=h[0];
+    h[0]=h[--sz];
+    int i=0;
+    while(true){
+        int l=2*i+1,r2=2*i+2,m=i;
+        if(l<sz&&h[l]>h[m]) m=l;
+        if(r2<sz&&h[r2]>h[m]) m=r2;
+        if(m!=i){
+            int t=h[i]; h[i]=h[m]; h[m]=t;
+            i=m;
+        } else break;
+    }
+    return r;
+}
+
+int main(){
+    pushPQ(5);
+    pushPQ(9);
+    pushPQ(3);
+    pushPQ(7);
+    cout<<popPQ()<<endl;
+    cout<<popPQ()<<endl;
+}
