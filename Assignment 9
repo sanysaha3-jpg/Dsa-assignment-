@@ -1,0 +1,225 @@
+#include <iostream>
+using namespace std;
+#define MAX 50
+#define INF 99999
+
+int n;
+int adj[MAX][MAX];
+int cost[MAX][MAX];
+int orig_cost[MAX][MAX];
+int visited[MAX];
+int parent_ds[MAX];
+
+void bfs(int start){
+    int q[MAX];
+    int front=0, rear=0;
+    for(int i=0;i<n;i++) visited[i]=0;
+    visited[start]=1;
+    q[rear++]=start;
+    while(front<rear){
+        int u=q[front++];
+        cout<<u<<" ";
+        for(int v=0;v<n;v++){
+            if(adj[u][v] && !visited[v]){
+                visited[v]=1;
+                q[rear++]=v;
+            }
+        }
+    }
+    cout<<"\n";
+}
+
+void dfs_util(int u){
+    visited[u]=1;
+    cout<<u<<" ";
+    for(int v=0;v<n;v++){
+        if(adj[u][v] && !visited[v]) dfs_util(v);
+    }
+}
+
+void dfs(int start){
+    for(int i=0;i<n;i++) visited[i]=0;
+    dfs_util(start);
+    cout<<"\n";
+}
+
+int find_set(int i){
+    while(parent_ds[i]!=i) i=parent_ds[i];
+    return i;
+}
+
+void union_set(int a,int b){
+    int pa=find_set(a);
+    int pb=find_set(b);
+    parent_ds[pa]=pb;
+}
+
+void kruskal(){
+    for(int i=0;i<n;i++) parent_ds[i]=i;
+    int edges=0;
+    int total=0;
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++){
+            cost[i][j]=orig_cost[i][j];
+        }
+    }
+    cout<<"Kruskal MST edges:\n";
+    while(edges < n-1){
+        int mn=INF;
+        int a=-1,b=-1;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                if(cost[i][j] < mn && find_set(i) != find_set(j)){
+                    mn = cost[i][j];
+                    a = i; b = j;
+                }
+            }
+        }
+        if(a==-1 || b==-1) break;
+        union_set(a,b);
+        cout<<a<<" - "<<b<<" : "<<mn<<"\n";
+        total += mn;
+        cost[a][b]=cost[b][a]=INF;
+        edges++;
+    }
+    cout<<"Total cost: "<<total<<"\n";
+}
+
+void prim(int start){
+    int key[MAX];
+    int inmst[MAX];
+    int par[MAX];
+    for(int i=0;i<n;i++){
+        key[i]=INF;
+        inmst[i]=0;
+        par[i]=-1;
+    }
+    key[start]=0;
+    for(int count=0;count<n;count++){
+        int mn=INF;
+        int u=-1;
+        for(int i=0;i<n;i++){
+            if(!inmst[i] && key[i]<mn){
+                mn=key[i];
+                u=i;
+            }
+        }
+        if(u==-1) break;
+        inmst[u]=1;
+        for(int v=0;v<n;v++){
+            if(orig_cost[u][v] && !inmst[v] && orig_cost[u][v] < key[v]){
+                key[v]=orig_cost[u][v];
+                par[v]=u;
+            }
+        }
+    }
+    cout<<"Prim MST edges:\n";
+    int total=0;
+    for(int i=0;i<n;i++){
+        if(par[i]!=-1){
+            cout<<par[i]<<" - "<<i<<" : "<<orig_cost[par[i]][i]<<"\n";
+            total += orig_cost[par[i]][i];
+        }
+    }
+    cout<<"Total cost: "<<total<<"\n";
+}
+
+void dijkstra(int start){
+    int dist[MAX];
+    int spt[MAX];
+    for(int i=0;i<n;i++){
+        dist[i]=INF;
+        spt[i]=0;
+    }
+    dist[start]=0;
+    for(int count=0;count<n;count++){
+        int mn=INF;
+        int u=-1;
+        for(int i=0;i<n;i++){
+            if(!spt[i] && dist[i]<mn){
+                mn=dist[i];
+                u=i;
+            }
+        }
+        if(u==-1) break;
+        spt[u]=1;
+        for(int v=0;v<n;v++){
+            if(orig_cost[u][v] && !spt[v] && dist[u]+orig_cost[u][v] < dist[v]){
+                dist[v] = dist[u] + orig_cost[u][v];
+            }
+        }
+    }
+    cout<<"Shortest paths from "<<start<<":\n";
+    for(int i=0;i<n;i++){
+        if(dist[i]==INF) cout<<start<<" -> "<<i<<" = "<<"INF\n";
+        else cout<<start<<" -> "<<i<<" = "<<dist[i]<<"\n";
+    }
+}
+
+int main(){
+    for(int i=0;i<MAX;i++){
+        for(int j=0;j<MAX;j++){
+            adj[i][j]=0;
+            cost[i][j]=INF;
+            orig_cost[i][j]=0;
+        }
+    }
+    int m;
+    cout<<"Enter number of vertices: ";
+    cin>>n;
+    if(n<=0 || n>MAX) return 0;
+    cout<<"Enter number of edges: ";
+    cin>>m;
+    cout<<"Enter edges (u v w) with vertices numbered 0 to "<<n-1<<":\n";
+    for(int i=0;i<m;i++){
+        int u,v,w;
+        cin>>u>>v>>w;
+        if(u<0 || u>=n || v<0 || v>=n) continue;
+        adj[u][v]=1;
+        adj[v][u]=1;
+        orig_cost[u][v]=w;
+        orig_cost[v][u]=w;
+    }
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++){
+            if(orig_cost[i][j]) cost[i][j]=orig_cost[i][j];
+        }
+    }
+    while(1){
+        cout<<"Menu:\n";
+        cout<<"1 BFS\n";
+        cout<<"2 DFS\n";
+        cout<<"3 Kruskal MST\n";
+        cout<<"4 Prim MST\n";
+        cout<<"5 Dijkstra\n";
+        cout<<"6 Exit\n";
+        cout<<"Enter choice: ";
+        int ch;
+        cin>>ch;
+        if(ch==1){
+            int s;
+            cout<<"Start vertex: ";
+            cin>>s;
+            if(s>=0 && s<n) bfs(s);
+        } else if(ch==2){
+            int s;
+            cout<<"Start vertex: ";
+            cin>>s;
+            if(s>=0 && s<n) dfs(s);
+        } else if(ch==3){
+            kruskal();
+        } else if(ch==4){
+            int s;
+            cout<<"Start vertex: ";
+            cin>>s;
+            if(s>=0 && s<n) prim(s);
+        } else if(ch==5){
+            int s;
+            cout<<"Start vertex: ";
+            cin>>s;
+            if(s>=0 && s<n) dijkstra(s);
+        } else if(ch==6) break;
+        else cout<<"Invalid\n";
+    }
+    return 0;
+}
