@@ -1,0 +1,180 @@
+//Question 1
+#include <iostream>
+using namespace std;
+
+bool hasDuplicate(int nums[], int n) {
+    const int SIZE = 1000;
+    int hash[SIZE];
+    for(int i=0;i<SIZE;i++) hash[i]=-1;
+    for(int i=0;i<n;i++) {
+        int key = nums[i] % SIZE;
+        if(key<0) key += SIZE;
+        while(hash[key] != -1 && hash[key] != nums[i]) key = (key + 1) % SIZE;
+        if(hash[key] == nums[i]) return true;
+        hash[key] = nums[i];
+    }
+    return false;
+}
+
+int main() {
+    int nums[] = {1,2,3,1};
+    cout << (hasDuplicate(nums,4) ? "true" : "false");
+}
+//Question 2
+#include <iostream>
+using namespace std;
+
+int main() {
+    int A[] = {1,2,3,4};
+    int B[] = {3,4,5,6};
+    int n=4,m=4;
+
+    const int SIZE = 1000;
+    int hash[SIZE];
+    for(int i=0;i<SIZE;i++) hash[i]=-1;
+
+    for(int i=0;i<n;i++) {
+        int key = A[i] % SIZE;
+        if(key<0) key += SIZE;
+        while(hash[key] != -1 && hash[key] != A[i]) key = (key + 1) % SIZE;
+        hash[key] = A[i];
+    }
+
+    for(int i=0;i<m;i++) {
+        int key = B[i] % SIZE;
+        if(key<0) key += SIZE;
+        while(hash[key] != -1 && hash[key] != B[i]) key = (key + 1) % SIZE;
+        if(hash[key] == B[i]) cout << B[i] << " ";
+    }
+}
+//Question 3
+#include <iostream>
+using namespace std;
+
+int main() {
+    int nums[] = {2,3,2,4,3,2};
+    int n=6;
+
+    const int SIZE = 1000;
+    int keyArr[SIZE], valArr[SIZE];
+    for(int i=0;i<SIZE;i++) keyArr[i]=-1, valArr[i]=0;
+
+    for(int i=0;i<n;i++) {
+        int key = nums[i] % SIZE;
+        if(key<0) key += SIZE;
+        while(keyArr[key] != -1 && keyArr[key] != nums[i]) key = (key+1)%SIZE;
+        if(keyArr[key] == -1) keyArr[key] = nums[i];
+        valArr[key]++;
+    }
+
+    for(int i=0;i<SIZE;i++)
+        if(keyArr[i] != -1)
+            cout << keyArr[i] << " -> " << valArr[i] << " times\n";
+}
+//Question 4
+#include <iostream>
+using namespace std;
+
+int main() {
+    int nums[] = {4,5,1,2,0,4};
+    int n=6;
+
+    const int SIZE = 1000;
+    int keyArr[SIZE], valArr[SIZE];
+    for(int i=0;i<SIZE;i++) keyArr[i]=-1, valArr[i]=0;
+
+    for(int i=0;i<n;i++) {
+        int key = nums[i] % SIZE;
+        if(key<0) key += SIZE;
+        while(keyArr[key] != -1 && keyArr[key] != nums[i]) key = (key+1)%SIZE;
+        if(keyArr[key] == -1) keyArr[key] = nums[i];
+        valArr[key]++;
+    }
+
+    for(int i=0;i<n;i++) {
+        int key = nums[i] % SIZE;
+        if(key<0) key += SIZE;
+        while(keyArr[key] != nums[i]) key = (key+1)%SIZE;
+        if(valArr[key] == 1) {
+            cout << nums[i];
+            break;
+        }
+    }
+}
+//Question 5
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int val;
+    Node* next;
+};
+
+bool hasLoop(Node* head) {
+    const int SIZE = 1000;
+    Node* hash[SIZE];
+    for(int i=0;i<SIZE;i++) hash[i]=nullptr;
+
+    Node* cur = head;
+    while(cur) {
+        int key = ((long long)cur >> 3) % SIZE;
+        while(hash[key] != nullptr && hash[key] != cur) key = (key+1)%SIZE;
+        if(hash[key] == cur) return true;
+        hash[key] = cur;
+        cur = cur->next;
+    }
+    return false;
+}
+
+int main() {
+    Node* n1=new Node{1,nullptr};
+    Node* n2=new Node{2,nullptr};
+    Node* n3=new Node{3,nullptr};
+    Node* n4=new Node{4,nullptr};
+    n1->next=n2;
+    n2->next=n3;
+    n3->next=n4;
+    n4->next=n2;
+
+    cout << (hasLoop(n1) ? "true" : "false");
+}
+//Question 6
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int val;
+    Node* left;
+    Node* right;
+};
+
+bool insertVal(int x, int hash[], int SIZE) {
+    int key = x % SIZE;
+    if(key<0) key += SIZE;
+    while(hash[key] != -1 && hash[key] != x) key = (key+1)%SIZE;
+    if(hash[key] == x) return true;
+    hash[key] = x;
+    return false;
+}
+
+bool checkDuplicate(Node* root, int hash[], int SIZE) {
+    if(!root) return false;
+    if(insertVal(root->val, hash, SIZE)) return true;
+    return checkDuplicate(root->left, hash, SIZE) || checkDuplicate(root->right, hash, SIZE);
+}
+
+int main() {
+    Node* a=new Node{5,nullptr,nullptr};
+    Node* b=new Node{3,nullptr,nullptr};
+    Node* c=new Node{7,nullptr,nullptr};
+    Node* d=new Node{3,nullptr,nullptr};
+    a->left=b;
+    a->right=c;
+    b->left=d;
+
+    const int SIZE=1000;
+    int hash[SIZE];
+    for(int i=0;i<SIZE;i++) hash[i]=-1;
+
+    cout << (checkDuplicate(a,hash,SIZE) ? "Duplicates Found" : "No Duplicates");
+}
